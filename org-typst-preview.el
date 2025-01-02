@@ -122,6 +122,13 @@ Note that list in reverse order."
          (hex-color (apply 'color-rgb-to-hex (append (color-name-to-rgb foreground-color) '(2)))))
     (format "rgb(%S)" hex-color)))
 
+(defun org-typst-preview--typst-background-color ()
+  "Gets current theme background color and reformat it for typst."
+  ;; (cdr (assq 'background-color (frame-parameters)))
+  (let* ((background-color (face-background 'default))
+         (hex-color (apply 'color-rgb-to-hex (append (color-name-to-rgb background-color) '(2)))))
+    (format "rgb(%S)" hex-color)))
+
 (defun org-typst-preview--typst-font-settings ()
   "Return typst additional font settings.
 Those are based on `default' face font.
@@ -139,7 +146,8 @@ Currently passes weight and size."
 (defun org-typst-preview--generate-typst-file (file-path typst-code &optional common-configuration)
   "Generate typst file at FILE-PATH with TYPST-CODE and COMMON-CONFIGURATION."
   (with-temp-file file-path
-    (insert "#set page(width: auto, height: auto, margin: (x: 0pt, y: 0pt))\n") ;; , margin: (x: 20pt, y: 20pt)
+    (insert (format "#set page(width: auto, height: auto, margin: (x: 0pt, y: 0pt), fill: %s)\n"
+                    (org-typst-preview--typst-background-color))) ;; , margin: (x: 20pt, y: 20pt)
     (insert (format "#set text(fill: %s, %s)\n"
                     (org-typst-preview--typst-foreground-color)
                     (org-typst-preview--typst-font-settings)))
